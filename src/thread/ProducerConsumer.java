@@ -1,14 +1,24 @@
 package thread;
 
+import util.ThreadUtil;
+
 public class ProducerConsumer {
 
   private static int count = 0;
-  private static int[] buffer = new int[10];
+  private static final int[] buffer = new int[10];
   private static final Object lock = new Object();
 
-  public static void main(String[] args) throws InterruptedException {
+  private static boolean isFull() {
+    return count == buffer.length;
+  }
+
+  private static boolean isEmpty() {
+    return count == 0;
+  }
+
+  public static void main(String[] args) {
     // produce 50 times
-    Runnable producerTask =
+    final Runnable producerTask =
         () -> {
           for (int i = 0; i < 50; i++) {
             try {
@@ -21,7 +31,7 @@ public class ProducerConsumer {
         };
 
     // consume 50 times
-    Runnable consumerTask =
+    final Runnable consumerTask =
         () -> {
           for (int i = 0; i < 50; i++) {
             try {
@@ -33,18 +43,11 @@ public class ProducerConsumer {
           System.out.println("Done consuming");
         };
 
-    Thread producer = new Thread(producerTask);
-    Thread consumer = new Thread(consumerTask);
-    producer.start();
-    consumer.start();
-
-    producer.join();
-    consumer.join();
-
+    ThreadUtil.finish(new Thread(producerTask), new Thread(consumerTask));
     System.out.println("Size of current buffer: " + count); // should always be 0
   }
 
-  static class Producer {
+  private static class Producer {
 
     static void produce() throws InterruptedException {
       // Upon entering the synchronized the block, the lock object is already obtained by producer
@@ -64,7 +67,7 @@ public class ProducerConsumer {
     }
   }
 
-  static class Consumer {
+  private static class Consumer {
 
     static void consume() throws InterruptedException {
       // The consumer thread needs the lock to enter the synchronized block
@@ -80,13 +83,5 @@ public class ProducerConsumer {
       }
       // Once the thread leaves the synchronized block, the key is released
     }
-  }
-
-  private static boolean isFull() {
-    return count == buffer.length;
-  }
-
-  private static boolean isEmpty() {
-    return count == 0;
   }
 }

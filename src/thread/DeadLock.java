@@ -1,23 +1,18 @@
 package thread;
 
 public class DeadLock {
-  public static void main(String[] args) throws InterruptedException {
-    MyDeadLock deadLock = new MyDeadLock();
-    deadLock.runDeadLock();
-  }
-}
-
-class MyDeadLock {
 
   private final Object key1 = new Object();
   private final Object key2 = new Object();
 
-  void runDeadLock() throws InterruptedException {
-    Runnable r1 = this::a;
-    Runnable r2 = this::b;
+  public static void main(String[] args) throws InterruptedException {
+    DeadLock deadLock = new DeadLock();
+    deadLock.runDeadLock();
+  }
 
-    Thread t1 = new Thread(r1);
-    Thread t2 = new Thread(r2);
+  private void runDeadLock() throws InterruptedException {
+    final Thread t1 = new Thread(this::a);
+    final Thread t2 = new Thread(this::b);
     t1.setName("t1");
     t2.setName("t2");
 
